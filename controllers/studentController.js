@@ -9,14 +9,10 @@ exports.HomePage= async (req, res)=>{
     
 }
 
-// ahout page
-exports.AboutPage=(req, res)=>{
-    res.render('about');
-}
 
 // create form view
 exports.CreatePage=(req, res)=>{
-    res.render('create');
+    res.render('create_student');
 }
 
 // submit form (store data in database)

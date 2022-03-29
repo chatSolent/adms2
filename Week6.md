@@ -1,21 +1,23 @@
 ## MVC Stack 
-* Add folllowing directories
+* Open the project folder you have created last week and  Add folllowing directories(folders)
     * public 
     * models
     * controllers
     * views
     * routes
-* your project folder will look like this 
+ 
 
 ## Required Packages 
 
-### install the following packeges 
+### Open the terminal and install the following packeges use the below command
 
 ```shell
 npm install express express-ejs-layouts express-fileupload express-session mongodb mongoose ejs dotenv cookie-parser connect-flash
 
 ```
-* Create a file inside modles name it as database.js got to your index.js and cut the following code and paste it into the database.js and save the file
+---
+### Creating the database connection
+* Create a file inside models name it as database.js got to your index.js and cut the following code and paste it into the database.js and save the file
 
 ```js
 // Database connection
@@ -23,12 +25,19 @@ mongoose.connect(process.env.DATABASE_URI,{
     useUnifiedTopology:true,
     useNewUrlParser:true
   })
-  .then(() =>{console.log('database connected')})
+  .then(() =>{console.log('Database Connected')})
   .catch ((err)=>{
     console.log(`database not connected ->${err.message}`)
   })
 ```
-* Create a file inside modles name it as studentModel.js copy the following code from index.js 
+* Add the following line to the top of the database.js
+
+```js
+const mongoose = require('mongoose');
+```
+---
+### Creating the Model
+* Create a file inside models name it as studentModel.js copy the following code from index.js 
 
 ```js
 //Schema 
@@ -41,23 +50,47 @@ const studentSchema = new Schema({
 
  module.exports=mongoose.model('Student', studentSchema);// make this module importable in other modules  
 ```
-* add the following line into the database.js 
+* Add the following line into the database.js at the bottom to import the model that we created just now
 
  ```js
-    require('./studentModel') 
+    require('./studentModel') //
  ```
 
-* go to your controllers folder and create a file name with studentController.js and add the following code 
+* Your database.js will look like this 
+```js
+const mongoose = require('mongoose');
+mongoose.connect(process.env.DATABASE_URI,{
+    useUnifiedTopology:true,
+    useNewUrlParser:true
+  })
+  .then(() =>{console.log('database connected')})
+  .catch ((err)=>{
+    console.log(`database not connected ->${err.message}`)
+  })
+
+require('./studentModel')
+
+
+```
+---
+### Creating the Controllers 
+* Go to your controllers folder and create a file name with studentController.js and add the following code
+
+  1-  Import the database model
+
+  2-  Import the student model
+
+  3-  Write the controller code and export it using ***exports***
 
 ```js 
-require ('../models/database')
-const Student=require('../models/studentModel')
-
+require ('../models/database')//importing the database.js
+const Student=require('../models/studentModel')//importing the 
 exports.HomePage=(req, res)=>{
     res.render('index');
 ```
-
-go to your routes folder and create a file name with studentRoutes.js and add the following code
+---
+### Creating the Routes
+Go to your routes folder and create a file name with studentRoutes.js and add the following code
 
 ```js
 
@@ -72,8 +105,7 @@ module.exports=router
 
 ```
 
-* Add the following to the index.js, 
-* Your index.js file will look like this 
+* Replace your index.js with the following code,  
 
 ```js
 require('dotenv').config()
@@ -83,44 +115,60 @@ const expressLayouts=require('express-ejs-layouts')
 var port=3000
 
  app.use(express.urlencoded({extended:true}))//passing data in url(hidden)
- app.use(express.static('public'))//path to the static files
+ app.use(express.static('public'))//path to the static files(images,css,js)
  app.use(expressLayouts)//for using templates such as header ,footer ,body
 
+// server listen
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
 
 ```
-## Set tamplate and view engines 
-* add the following to the index.js
+---
+### Set tamplate and view engines 
+* Add the following to the index.js before the ***//server listen*** 
 ```js
 app.set ('layout','./layouts/main')//create layouts/main inside views
 app.set('view engine','ejs')
 
 ```
+---
+### Creating the template of your application/website
+* Go to the views and create a folder called layouts, inside the layouts folder create a file called main.ejs
 
-* go to the views and create a folder called layouts inside the layouts folder create a file called main.ejs
-
-* add this to the main.ejs (shift ! and tab)
+* To add the html hold (shift ! and tab) and add this to the main.ejs
 
 ```html
-
-<main>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+   <main>
   <%- body -%>
-</main>
+  </main> 
+</body>
+</html>
+
+
 ```
-* go to views and create index.ejs,
-test this code 
+* Go to views and create index.ejs,(this will be your homepage)
+add this code and test it on the browser localhost:3000
 ```html
 <h1>hello from ejs world</h1>
 
 ```
 
-* create following files inside ***views directory*** 
-    * about.ejs
-    * create.ejs
-* If you want to use bootstrap go to bootstrap webside and add ***CSS*** and ***bunddleJS***
-[Bootstrap](https://getbootstrap.com/)
+* Create the following file inside ***views directory*** 
+    * create_student.ejs
+---    
+### Adding bootstrap to your layout 
+* If you want to use bootstrap go to bootstrap website and add ***CSS*** and ***bunddleJS***
+[Bootstrap](https://getbootstrap.com/docs/5.1/getting-started/introduction/)
 
 * Add bootstrap css and js in ***views/layouts/main.ejs*** file
 your file should look like this.
@@ -132,9 +180,25 @@ your file should look like this.
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+    <!--bootstrap css --> 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <title>Document</title>
 </head>
+<!--Navigation Bar will go here -->
+<body>
+    <div class="container">
+    <main>
+        <%- body -%>
+
+    </main>
+</div>
+ <!--bootstrap js bundle--> 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+</body>
+</html>
+```
+### Adding the Navigation Bar  before <body> (tag) for your main.ejs page 
+```html
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <a class="navbar-brand" href="/student">Students</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
@@ -143,96 +207,61 @@ your file should look like this.
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
         <a class="nav-link active" href="/">Home <span class="sr-only">(current)</span></a>
-        <a class="nav-link" href="/create">Create</a>
-        <a class="nav-link" href="/about">About us</a>
-        
+        <a class="nav-link" href="/create_student">Create Student</a>
       </div>
     </div>
   </nav>
-
-<body>
-    <div class="container">
-    <main>
-        <%- body -%>
-
-    </main>
-</div>
- 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF" crossorigin="anonymous"></script>
-</body>
-</html>
 ```
 
-## Process of creating mvc page
-### create view (about.ejs)
-```html
-<!-- File: views/about.ejs -->
-    <h1>About Us</h1>
-    <p> This page will display information about us</p>
-```
-### add route  
-    ```js
-    // file: routers/studentRoutes.js
-
-    // it will creat route like localhost:3000/about
-    router.get('/about', studentController.AboutPage);
-
-    ```
-### create controller
-```js
-// File: controllers/studentController.js
-exports.AboutPage=(req, res)=>{
-    res.render('about');
-}
-```
-## Add Student (create page)
-* open create.ejs and add following code
+### Process of creating mvc page
+---
+## Add Student (create_student page)
+* Open create_student.ejs and add following code or get a form from bootstrap [Form](https://getbootstrap.com/docs/5.1/forms/form-control/)
 ```html
 <h2>Add new Student</h2>
-<form method="POST" action="create">
+<form method="POST" action="create_student">
     <div class="form-group">
-        <label for="name">Studen Name</label>
-        <input type="text" class="form-control" name="name" aria-describedby="emailHelp">
+        <label for="name">Student Name</label>
+        <input type="text" class="form-control" name="name">
       </div>
     <div class="form-group">
         <label for="emil">Email address</label>
-        <input type="email" class="form-control"  name="email" aria-describedby="emailHelp">
+        <input type="email" class="form-control"  name="email">
       </div>
     <button class="btn btn-primary">Add Student</button>
     
 </form>
 ```
-## add route
-add following code in ***studentRoutes.js***
+### Add route (Going from one webpage to the other webpage )
+* Add following code in ***studentRoutes.js*** before ***module.exports=router***
 ```js
 // File: routes/studentRoutes.js
- router.get('/create', studentController.CreatePage);
+ router.get('/create_student', studentController.CreatePage);
 ```
-## Add controller 
-Add following code in ***studentController.js***
+### Add controller 
+* Add following code in ***studentController.js***
 ```js
 // File: controllers/studentController.js
 // create form view
 exports.CreatePage=(req, res)=>{
-    res.render('create');
+    res.render('create_student');
 }
 ```
-* go to navigation in your app [localhost](localhost:3000) click create link  you will see ***add new student*** form
+* Go to navigation bar in your app [localhost](localhost:3000) click create link  you will see ***add new student*** form
+---
+### Create ***POST*** Process
+To add data in to the database we need to post data. To post data we will add the following to our code.
+* Step 1 Create post route
+* Step 2 Add controller
+* Step 3 Store data to databse
 
-## Create ***POST*** Process
-To add data in database we need to post data. To post data we will add following in our code.
-* create post route
-* add controller
-* store data to databse
-
-## create post router
+### Step 1 Create post router
 add following code in ***studentRoutes.js***
 ```js
 // File: routes/studentRoutes.js
- router.post('/create', studentController.CreateStudent);
+ router.post('/create_student', studentController.CreateStudent);
 ```
-## Add controller 
+### Step 2 Add controller 
 Add following code in ***studentController.js***
 ```js
 // File: controllers/studentController.js
@@ -241,28 +270,40 @@ exports.CreateStudent=(req, res)=>{
    console.log(req.body);
 }
 ```
-* go to your terminal you will see somthing like below.
-```shell
-database connected
-{ name: 'chat', email: 'abc@live.com' }
-```
-## Adding Data to the database
-* Add following code in ***studentController.js***
+* Your studentController.js file will look like this 
+
 ```js
-// File: controllers/studentController.js
+require ('../models/database')
+const Student=require('../models/studentModel')
 
 exports.HomePage= async (req, res)=>{
     
-    const students = await Student.find({})
+        const students = await Student.find({})
    
     res.render('index',{students});
     
 }
-
-    
+// create form view
+exports.CreatePage=(req, res)=>{
+    res.render('create_student');
+}
 // submit form (store data in database)
 exports.CreateStudent=(req, res)=>{
-      //console.log(req.body);
+   console.log(req.body);//comment this in the next step
+}
+```
+* If you add a student using the form created above you will be able to see the data as shown below on your terminal
+
+```shell
+database connected
+{ name: 'chat', email: 'abc@live.com' }
+```
+---
+### Step 3 Store Data to the database
+* Add following code in ***studentController.js*** after exports.CreateStudent=(req, res)=>{
+```js
+// File: controllers/studentController.js
+
    let name =req.body.name
    let email =req.body.email
    if(email !=''&& name !=''){
@@ -279,7 +320,9 @@ exports.CreateStudent=(req, res)=>{
     res.redirect('/')
 }
 ```
-* Add following code in ***index.ejs***
+---
+### Display data from the MongoDB to a webpage 
+* Add following code in ***index.ejs*** [bootstrap table](https://getbootstrap.com/docs/5.1/content/tables/)
 ```html
 <% if (typeof students !== 'undefined' && students.length> 0) { %>
 <table class="table">

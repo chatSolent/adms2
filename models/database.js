@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
 // Database connection
+const mongoose = require('mongoose');
 mongoose.connect(process.env.DATABASE_URI,{
     useUnifiedTopology:true,
     useNewUrlParser:true
@@ -11,3 +11,4 @@ mongoose.connect(process.env.DATABASE_URI,{
 
 require('./studentModel')
   
+

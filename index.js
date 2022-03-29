@@ -22,5 +22,5 @@ const routes = require('./routes/studentRoutes')
 app.use('/', routes)
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+  console.log(`Demo app listening on port ${port}`)
 })

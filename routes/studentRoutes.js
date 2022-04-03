@@ -7,5 +7,13 @@ const studentController = require('../controllers/studentController')
 router.get('/', studentController.HomePage);
 router.get('/create_student', studentController.CreatePage);
 router.post('/create_student', studentController.CreateStudent);
-// export routes
+// Update
+router.get('/', studentController.HomePage);
+router.get('/edit_student/:id', studentController.EditStudent);//router.get('/edit_student/:id', studentController.EditStudet);
+router.post('/edit_student/:id', studentController.EditStudentAction);
+//router.delete(('/delete_student/:id',function(req, res))
 module.exports=router
+
+//Delete
+router.get('/delete_student/:id', studentController.DeleteStudent);
+//router.delete('/delete_student/:id',studentController.DeleteStudent) 

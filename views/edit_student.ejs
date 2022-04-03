@@ -1,5 +1,5 @@
-<h2>Edit Student</h2>
-<form method="POST" action="edit_student">
+<h2>Update Student</h2>
+<form method="POST" action="/edit_student/<%- student._id %>">
     <div class="form-group">
         <label for="name">Student Name</label>
         <input type="text" class="form-control" name="name" value="<%- student.name %>">

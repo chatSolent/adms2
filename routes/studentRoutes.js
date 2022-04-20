@@ -24,5 +24,8 @@ router.get('/delete_student/:id', studentController.DeleteStudent);
 router.get('/register', studentController.RegisterPage);
 router.post('/register', studentController.RegisterUser);
 
-
+//login
+//router.get('/', studentController.HomePage);
+router.get('/login', studentController.LoginPage);
+router.post('/login', studentController.LoginUser);
 module.exports=router

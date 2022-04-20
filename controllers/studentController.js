@@ -4,7 +4,9 @@ const req = require('express/lib/request');
 const { append } = require('express/lib/response');
 const res = require('express/lib/response');
 const Student=require('../models/studentModel');
-const User=require('../models/User')
+const User  = require('../models/User')
+const bcrypt = require('bcrypt');
+const morgan = require('morgan');
 
 exports.HomePage= async (req, res) =>{
     
@@ -79,24 +81,64 @@ exports.RegisterPage=(req, res)=>{
     res.render('register');
 }
 //User
-exports.RegisterUser=(req,res)=>{
+exports.RegisterUser=async(req,res)=>{
+    const salt = bcrypt.genSaltSync(parseInt(process.env.SALT_ROUND));
+    const hash = bcrypt.hashSync(req.body.password, salt);
+// Store hash in your password DB.
     console.log(req.body)
-    User.findOne({email:req.body.email}).then((User)); {
-    if (User){
-
+    //User.findOne({email:req.body.email}).then((User)); {
+    const user = await User.findOne({email:req.body.email})
+    if (user){
+        console.log(user)
         return res.status(400).json({email: "A user already registered"})
     }else {
 // or create new user 
         const newUser =new User({
            userName:req.body.name,
            email:req.body.email,
-           password: req.body.password,
+           password: hash,
 
         });
+            //newUser.save()
             newUser.save()
-            return res.status(200).json({msg: newUser})
+            //return res.status(200).json({msg: newUser})
+            res.redirect('/')
         }
-    };
-};
+    
+    //
+    
+    }
 
+    exports.LoginPage=async(req,res)=>{
+        res.render('login');
+
+    }
+
+    exports.LoginUser= (req,res)=>{
+        //res.render('login');
+        console.log(req.body)
+
+        const user =  User.findOne({email:req.body.email})
+        if (!user){
+            res.redirect('/login')
+        }
+        console.log(user.password) 
+         comparePassword(req.body.password,(error,match)=>{
+            if (!match)
+            {
+                res.redirect("/login")
+            }
+            res.redirect('/')
+           
+        })   
+
+        
+    }
+
+
+     function comparePassword (plaintext,callback) {
+        console.log(plaintext)
+        return   callback(null,bcrypt.compareSync(plaintext,this.password));
+    
+    };
 

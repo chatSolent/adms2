@@ -19,27 +19,30 @@ app.use(morgan(':method :host :status :param[id] :res[content-length] - :respons
 app.use(express.urlencoded({extended:true}))//passing data in url(hidden)
 app.use(express.static('public'))//path to the static files
 app.use(expressLayouts)//for using templates such as header ,footer ,body
+
 app.use(cookieParser())
-app.use('/', routes)
+
 
 app.use(
   session({
-    kay: 'user_sid',
-    secret: secret,
+    key: "user_sid",
+    secret: `${secret}`,
     resave: false,
     saveUninitialized: false,
     cookie:{
+     // name:'express',
       expires: 1000 * 60 * 60 * 24
     },
 
   })
   
 )
-
+app.use('/', routes)
 app.use((req, res, next)=>{
   if(req.cookies.user_sid && !req.session.user){
-    res.clearCookie('user_sid')
+    res.clearCookie("user_sid")
   }
+  console.log(req.session.user)
   next()
 })
 

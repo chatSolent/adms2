@@ -20,19 +20,98 @@ var sessionChecker= (req, res, next)=>{
       
 }
 
-exports.HomePage= async (req, res) =>{
-    
-        const students = await Student.find({})
-   
-    res.render('index',{students});
-    
+
+
+exports.LoginPage=async(req,res)=>{
+    res.render('login');
+
 }
 
+exports.LoginUser= async(req,res)=>{
+    //res.render('login');
+    console.log(req.body)
+
+    const user =  await User.findOne({email:req.body.email}).exec()
+    if (!user){
+        res.redirect('/login')
+    }
+   // console.log(user.password) 
+     await user.comparePassword(req.body.password,(error,match)=>{
+        if (!match)
+        {
+            res.redirect("/login")
+        }
+        req.session.user=user
+        res.redirect('/')
+       
+    })  
+} 
+
+//logout
+   
+exports.LogoutUser= (req,res)=>{
+    if(req.session.user && req.cookies.user_sid ){
+        res.clearCookie("user_sid")
+        res.redirect('/login')
+    }else {
+        console.log(req.session.user)
+        res.clearCookie("user_sid")
+        res.redirect('/')
+    }
+   
+   // res.redirect('/')
+   
+} 
+
+exports.HomePage= async (req, res) =>{
+    
+    const students = await Student.find({})
+
+res.render('index',{students});
+
+}
 
 // create form view
-exports.CreatePage = (sessionChecker, (req, res) =>{
+exports.RegisterPage=(req, res)=>{
+    res.render('register');
+}
+//User
+exports.RegisterUser=async(req,res)=>{
+    const salt = bcrypt.genSaltSync(parseInt(process.env.SALT_ROUND));
+    const hash = bcrypt.hashSync(req.body.password, salt);
+// Store hash in your password DB.
+    console.log(req.body)
+    //User.findOne({email:req.body.email}).then((User)); {
+    const user = await User.findOne({email:req.body.email})
+    if (user){
+        console.log(user)
+        return res.status(400).json({email: "A user already registered"})
+    }else {
+// or create new user 
+        const newUser =new User({
+           userName:req.body.name,
+           email:req.body.email,
+           password: hash,
 
-    res.redirect('/login');
+        });
+            //newUser.save()
+            newUser.save()
+            //return res.status(200).json({msg: newUser})
+            res.redirect('/')
+        }
+    
+    
+    
+    }
+// create form view
+exports.CreatePage = (sessionChecker, (req, res,next) =>{
+    if(!req.cookies.user_sid && !req.session.user){
+        res.redirect('/login')
+    }else {
+        res.render('create_student')
+    }
+
+   // res.redirect('/login');
 })
 
 // submit form (store data in database)
@@ -89,71 +168,10 @@ exports.DeleteStudent=async(req, res)=>{
 
 //
 
-// create form view
-exports.RegisterPage=(req, res)=>{
-    res.render('register');
-}
-//User
-exports.RegisterUser=async(req,res)=>{
-    const salt = bcrypt.genSaltSync(parseInt(process.env.SALT_ROUND));
-    const hash = bcrypt.hashSync(req.body.password, salt);
-// Store hash in your password DB.
-    console.log(req.body)
-    //User.findOne({email:req.body.email}).then((User)); {
-    const user = await User.findOne({email:req.body.email})
-    if (user){
-        console.log(user)
-        return res.status(400).json({email: "A user already registered"})
-    }else {
-// or create new user 
-        const newUser =new User({
-           userName:req.body.name,
-           email:req.body.email,
-           password: hash,
 
-        });
-            //newUser.save()
-            newUser.save()
-            //return res.status(200).json({msg: newUser})
-            res.redirect('/')
-        }
+
     
-    //Login
-    
-    }
-
-    exports.LoginPage=async(req,res)=>{
-        res.render('login');
-
-    }
-
-    exports.LoginUser= async(req,res)=>{
-        //res.render('login');
-        console.log(req.body)
-
-        const user =  await User.findOne({email:req.body.email})
-        if (!user){
-            res.redirect('/login')
-        }
-        console.log(user.password) 
-         await user.comparePassword(req.body.password,(error,match)=>{
-            if (!match)
-            {
-                res.redirect("/login")
-            }
-            res.redirect('/')
-           
-        })  
-    } 
-
-       //logout
-       
-       exports.LogoutUser= async(req,res)=>{
-        
-            res.redirect('/')
-           
-        } 
-
+ 
 
 
         

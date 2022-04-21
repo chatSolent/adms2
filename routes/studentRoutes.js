@@ -30,5 +30,6 @@ router.get('/login', studentController.LoginPage);
 router.post('/login', studentController.LoginUser);
 
 //logout 
-router.post('/logout', studentController.LogoutUser);
+//router.get('/logout', studentController.LogoutPage);
+router.get('/logout', studentController.LogoutUser);
 module.exports=router

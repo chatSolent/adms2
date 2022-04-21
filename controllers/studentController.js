@@ -7,6 +7,18 @@ const Student=require('../models/studentModel');
 const User  = require('../models/User')
 const bcrypt = require('bcrypt');
 const morgan = require('morgan');
+//const e = require('connect-flash');
+
+var sessionChecker= (req, res, next)=>{
+    console.log(req)
+    if(req.cookies.user_sid && req.session.user){
+        res.redirect('/')
+      }else {
+        next()
+      }
+
+      
+}
 
 exports.HomePage= async (req, res) =>{
     
@@ -18,9 +30,10 @@ exports.HomePage= async (req, res) =>{
 
 
 // create form view
-exports.CreatePage=(req, res)=>{
-    res.render('create_student');
-}
+exports.CreatePage = (sessionChecker, (req, res) =>{
+
+    res.redirect('/login');
+})
 
 // submit form (store data in database)
 exports.CreateStudent=(req, res)=>{
@@ -105,7 +118,7 @@ exports.RegisterUser=async(req,res)=>{
             res.redirect('/')
         }
     
-    //
+    //Login
     
     }
 
@@ -130,10 +143,21 @@ exports.RegisterUser=async(req,res)=>{
             }
             res.redirect('/')
            
-        })   
+        })  
+    } 
+
+       //logout
+       
+       exports.LogoutUser= async(req,res)=>{
+        
+            res.redirect('/')
+           
+        } 
+
+
 
         
-    }
+    
 
 
   

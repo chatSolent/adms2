@@ -28,4 +28,7 @@ router.post('/register', studentController.RegisterUser);
 //router.get('/', studentController.HomePage);
 router.get('/login', studentController.LoginPage);
 router.post('/login', studentController.LoginUser);
+
+//logout 
+router.post('/logout', studentController.LogoutUser);
 module.exports=router

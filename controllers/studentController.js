@@ -114,16 +114,16 @@ exports.RegisterUser=async(req,res)=>{
 
     }
 
-    exports.LoginUser= (req,res)=>{
+    exports.LoginUser= async(req,res)=>{
         //res.render('login');
         console.log(req.body)
 
-        const user =  User.findOne({email:req.body.email})
+        const user =  await User.findOne({email:req.body.email})
         if (!user){
             res.redirect('/login')
         }
         console.log(user.password) 
-         comparePassword(req.body.password,(error,match)=>{
+         await user.comparePassword(req.body.password,(error,match)=>{
             if (!match)
             {
                 res.redirect("/login")
@@ -136,9 +136,5 @@ exports.RegisterUser=async(req,res)=>{
     }
 
 
-     function comparePassword (plaintext,callback) {
-        console.log(plaintext)
-        return   callback(null,bcrypt.compareSync(plaintext,this.password));
-    
-    };
+  
 

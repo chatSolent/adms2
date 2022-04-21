@@ -25,6 +25,9 @@ const UserSchema= mongoose.Schema({
     }
 });
 
+UserSchema.methods.comparePassword = function(plaintext,callback) {
+    return callback(null,bcrypt.compareSync(plaintext,this.password));
 
+};
 const User = mongoose.model("User",UserSchema);
 module.exports = User

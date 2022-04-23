@@ -8,9 +8,10 @@ router.get('/', studentController.HomePage);
 router.get('/create_student', studentController.CreatePage);
 router.post('/create_student', studentController.CreateStudent);
 
+router.get('/about', studentController.AboutPage);
+
 // Update
-router.get('/', studentController.HomePage);
-router.get('/edit_student/:id', studentController.UpdateStudentPage);//router.get('/edit_student/:id', studentController.EditStudet);
+router.get('/edit_student/:id', studentController.UpdateStudentPage);
 router.post('/edit_student/:id', studentController.UpdateStudent);
 
 
@@ -29,7 +30,6 @@ router.post('/register', studentController.RegisterUser);
 router.get('/login', studentController.LoginPage);
 router.post('/login', studentController.LoginUser);
 
-//logout 
-//router.get('/logout', studentController.LogoutPage);
+//logout
 router.get('/logout', studentController.LogoutUser);
 module.exports=router

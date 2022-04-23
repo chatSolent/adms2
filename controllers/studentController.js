@@ -9,74 +9,110 @@ const bcrypt = require('bcrypt');
 const morgan = require('morgan');
 //const e = require('connect-flash');
 
-var sessionChecker= (req, res, next)=>{
-    console.log(req)
-    if(req.cookies.user_sid && req.session.user){
-        res.redirect('/')
-      }else {
-        next()
-      }
 
-      
-}
-
-
-
-exports.LoginPage=async(req,res)=>{
-    res.render('login');
-
-}
-
-exports.LoginUser= async(req,res)=>{
-    //res.render('login');
-    console.log(req.body)
-
-    const user =  await User.findOne({email:req.body.email}).exec()
-    if (!user){
-        res.redirect('/login')
-    }
-   // console.log(user.password) 
-     await user.comparePassword(req.body.password,(error,match)=>{
-        if (!match)
-        {
-            res.redirect("/login")
-        }
-        req.session.user=user
-        res.redirect('/')
-       
-    })  
-} 
-
-//logout
-   
-exports.LogoutUser= (req,res)=>{
-    if(req.session.user && req.cookies.user_sid ){
-        res.clearCookie("user_sid")
-        res.redirect('/login')
+var sessionChecker= async (req, res, next)=>{
+    //console.log(req)
+    if(req.cookies.user_sid && !req.session.user){
+        const students = await Student.find({})
+        res.render('student_data', { session: req.session.user, students: {students}})
     }else {
-        console.log(req.session.user)
-        res.clearCookie("user_sid")
-        res.redirect('/')
+        next()
     }
-   
-   // res.redirect('/')
-   
-} 
+
+
+}
 
 exports.HomePage= async (req, res) =>{
-    
     const students = await Student.find({})
-
-res.render('index',{students});
+    console.log(students)
+    res.render('index', { session: req.session.user, students: {students}});
 
 }
+exports.AboutPage= async (req, res) =>{
+    const students = await Student.find({})
+    console.log(students)
+    res.render('about', { session: req.session.user, students: {students}});
+
+}
+
+
+// create form view
+exports.CreatePage = (sessionChecker, (req, res) =>{
+
+    if(!req.cookies.user_sid && req.session.user){
+        res.render('login', {user: req.user,session: req.session.user})
+    }else {
+        res.render('create_student',{ session: req.session.user})
+    }
+
+
+})
+
+// submit form (store data in database)
+exports.CreateStudent= async (req, res)=>{
+
+   //console.log(req.body);
+    let name =req.body.name
+    let email =req.body.email
+    if(email !=''&& name !=''){
+        const student = new Student({
+            name:name,
+            email:email
+        })
+            student.save()
+        }else{
+    }
+    console.log('student data created')
+    const students = await Student.find({})
+    res.render('student_data', { session: req.session.user,students: {students}});
+}
+
+// Edit Student
+exports.UpdateStudentPage= async (req, res)=>{
+    console.log(req.params.id);
+    const id = req.params.id;
+    const student = await Student.findById({_id:id})
+    res.render('edit_student', { session: req.session.user,student: {student}});
+
+}
+// Edit Student Action
+exports.UpdateStudent=async (req, res)=>{
+
+    try {
+        const student = await Student.updateOne({_id:req.params.id, name:req.body.name, email:req.body.email})
+        console.log(student)
+        const students = await Student.find({})
+        res.render('student_data', { session: req.session.user,students: {students}})
+    } catch (error) {
+        console.log(error)
+
+    }
+}
+
+
+// Delete
+exports.DeleteStudent=async(req, res)=>{
+    if(!req.cookies.user_sid && req.session.user){
+        res.render('login',{ session: req.session.user})
+    }
+    console.log(req.params.id);
+    const id = req.params.id;
+    const student =await Student.deleteOne({ _id: id });
+    console.log(student);
+    const students = await Student.find({})
+    res.render('student_data', { session: req.session.user,students: {students}})
+
+}
+
+//
 
 // create form view
 exports.RegisterPage=(req, res)=>{
-    res.render('register');
+
+    res.render('register',{ session: req.session.user });
 }
 //User
-exports.RegisterUser=async(req,res)=>{
+exports.RegisterUser= async (req,res)=>{
     const salt = bcrypt.genSaltSync(parseInt(process.env.SALT_ROUND));
     const hash = bcrypt.hashSync(req.body.password, salt);
 // Store hash in your password DB.
@@ -87,96 +123,53 @@ exports.RegisterUser=async(req,res)=>{
         console.log(user)
         return res.status(400).json({email: "A user already registered"})
     }else {
-// or create new user 
+// or create new user
         const newUser =new User({
-           userName:req.body.name,
-           email:req.body.email,
-           password: hash,
+            userName:req.body.name,
+            email:req.body.email,
+            password: hash,
 
         });
-            //newUser.save()
             newUser.save()
-            //return res.status(200).json({msg: newUser})
-            res.redirect('/')
+            res.render("login", {  session: req.session.user})
         }
-    
-    
-    
-    }
-// create form view
-exports.CreatePage = (sessionChecker, (req, res,next) =>{
-    if(!req.cookies.user_sid && !req.session.user){
-        res.redirect('/login')
-    }else {
-        res.render('create_student')
-    }
 
-   // res.redirect('/login');
-})
-
-// submit form (store data in database)
-exports.CreateStudent=(req, res)=>{
-   //console.log(req.body);
-   let name =req.body.name
-   let email =req.body.email
-   if(email !=''&& name !=''){
-       const student = new Student({
-           name:name,
-           email:email
-       })
-        student.save()
-    }else{
-
+    //Login
 
     }
-    console.log('student data created')
-    res.redirect('/')
 
-   
+    exports.LoginPage = async (req,res)=>{
+        res.render('login',{ session: req.session.user});
 
-}
+    }
 
-// Edit Student
-exports.UpdateStudentPage= async (req, res)=>{
-    console.log(req.params.id);
-    const id = req.params.id;
-    const student = await Student.findById({_id:id})
-    res.render('edit_student', {student}); 
+    exports.LoginUser = async (req,res)=>{
 
-}
-// Edit Student Action
-exports.UpdateStudent=async (req, res)=>{
-   
-   try {
-    const student = await Student.updateOne({_id:req.params.id, name:req.body.name, email:req.body.email})
-    res.redirect('/')
-   } catch (error) {
-       console.log(error)
-       
-   }
-}
+        const user =  await User.findOne({email:req.body.email})
 
+        if (!user){
+            res.render('login', { session: req.session.user})
+        }
 
-// Delete 
-exports.DeleteStudent=async(req, res)=>{ 
-    console.log(req.params.id);
-    const id = req.params.id;
-    const student =await Student.deleteOne({ _id: id });
-    console.log(student);
-    res.redirect('/');
-}
+        await user.comparePassword(req.body.password, async(error,match)=>{
+            const students = await Student.find({})
+            if (!match){
+                res.render("login", {  session: req.session.user})
+            }
+            req.session.user = user
+            res.render('student_data', {  session: req.session.user, students:{students}})
+        })
+    }
 
-//
+       //logout
 
-
-
-    
- 
-
-
-        
-    
-
-
-  
-
+    exports.LogoutUser= async(req,res)=>{
+        console.log(req.cookies.user_sid)
+        if(req.cookies.user_sid && req.session.user){
+            res.clearCookie('user_sid')
+               //res.session.destroy()
+            res.redirect('./login' /*, { session: req.session.user}*/)
+        }else{
+            res.redirect('./login')
+        }
+        }
